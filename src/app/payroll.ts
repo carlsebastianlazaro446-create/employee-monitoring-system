@@ -3,6 +3,8 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { EmployeeService } from './employee-service';
 import { computePay, getPeriod } from './payroll-calc';
+import { SettingsService } from '../settings-service';
+
 
 @Component({
   selector: 'app-payroll',
@@ -137,13 +139,16 @@ import { computePay, getPeriod } from './payroll-calc';
 })
 export class Payroll {
   svc = inject(EmployeeService);
+  private settings = inject(SettingsService);
 
   month = signal(this.svc.today().slice(0, 7));
   half = signal<1 | 2>(new Date().getDate() <= 15 ? 1 : 2);
   slipId = signal(0);
   payslipOnly = signal(false);
 
-  period = computed(() => getPeriod(this.month() || this.svc.today().slice(0, 7), this.half()));
+  period = computed(() =>
+    getPeriod(this.month() || this.svc.today().slice(0, 7), this.half(), this.settings.settings().payLagDays)
+  );
   paid = computed(() => this.svc.paidRuns().includes(this.period().key));
 
   rows = computed(() =>

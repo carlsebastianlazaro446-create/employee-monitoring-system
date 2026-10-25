@@ -1,11 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { EmployeeService } from './employee-service';
 import { Employee, Status } from './models';
 
 @Component({
   selector: 'app-employees',
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   template: `
     <div class="page-header">
       <h1>Employees</h1>
@@ -59,6 +60,7 @@ import { Employee, Status } from './models';
               <td>{{ e.position }}</td>
               <td><span class="badge" [class]="statusClass(e.status)">{{ e.status }}</span></td>
               <td class="row-actions">
+                <a class="btn small" [routerLink]="['/employees', e.id]">Profile</a>
                 <button class="btn small" (click)="openEdit(e)">Edit</button>
                 <button class="btn small danger" (click)="remove(e)">Delete</button>
               </td>

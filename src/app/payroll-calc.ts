@@ -61,7 +61,7 @@ const fmt = (d: Date) =>
   d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 /** half 1 = 1st to 15th (cut-off 15th). half 2 = 16th to end of month (cut-off 30th, or last day in February). */
-export function getPeriod(month: string, half: 1 | 2): PayPeriod {
+export function getPeriod(month: string, half: 1 | 2, payLagDays = PAY_LAG_DAYS): PayPeriod {
   const [y, m] = month.split('-').map(Number);
   const lastDay = new Date(y, m, 0).getDate();
 
@@ -69,7 +69,7 @@ export function getPeriod(month: string, half: 1 | 2): PayPeriod {
   const end = new Date(y, m - 1, half === 1 ? 15 : lastDay);
   const cutOffDay = half === 1 ? 15 : Math.min(30, lastDay);
   const cutOff = new Date(y, m - 1, cutOffDay);
-  const payDate = new Date(y, m - 1, cutOffDay + PAY_LAG_DAYS); // overflows into next month correctly
+  const payDate = new Date(y, m - 1, cutOffDay + payLagDays);
 
   const short = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   return {
@@ -79,4 +79,3 @@ export function getPeriod(month: string, half: 1 | 2): PayPeriod {
     payDate: fmt(payDate),
   };
 }
-

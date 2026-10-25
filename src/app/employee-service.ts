@@ -1,5 +1,14 @@
 import { Injectable, signal } from '@angular/core';
-import { AttendanceRecord, DocCategory, Employee, EmployeeDocument, IncidentReport, IncidentStatus, LeaveRequest, LeaveStatus,
+import {
+  AttendanceRecord,
+  DocCategory,
+  Employee,
+  EmployeeDetails,
+  EmployeeDocument,
+  IncidentReport,
+  IncidentStatus,
+  LeaveRequest,
+  LeaveStatus,
 } from './models';
 
 @Injectable({ providedIn: 'root' })
@@ -14,7 +23,8 @@ export class EmployeeService {
     { id: 5, name: 'Sofia Garcia', email: 'sofia@company.com', department: 'Sales', position: 'Sales Lead', status: 'Inactive' },
   ]);
 
-   private _attendance = signal<AttendanceRecord[]>(this.seedAttendance());
+  private _details = signal<Record<number, EmployeeDetails>>(this.seedDetails());
+  private _attendance = signal<AttendanceRecord[]>(this.seedAttendance());
    
   private nextLeaveId = 5;
   private _leaves = signal<LeaveRequest[]>(this.seedLeaves());
@@ -57,11 +67,60 @@ export class EmployeeService {
     this._employees.update((list) => list.map((e) => (e.id === emp.id ? emp : e)));
   }
 
-    remove(id: number) {
+  detailsOf(id: number): EmployeeDetails {
+    return this._details()[id] ?? this.blankDetails(id);
+  }
+
+  saveDetails(details: EmployeeDetails) {
+    this._details.update((current) => ({ ...current, [details.employeeId]: details }));
+  }
+
+  private blankDetails(id: number): EmployeeDetails {
+    return {
+      employeeId: id,
+      hireDate: '',
+      phone: '',
+      birthDate: '',
+      gender: '',
+      civilStatus: '',
+      address: '',
+      emergencyName: '',
+      emergencyRelation: '',
+      emergencyPhone: '',
+      sssNo: '',
+      philhealthNo: '',
+      pagibigNo: '',
+      tin: '',
+      photo: null,
+    };
+  }
+
+  /** Sample details so the page isn't empty. Delete when you add a backend. */
+  private seedDetails(): Record<number, EmployeeDetails> {
+    const makeDetails = (id: number, hireDate: string, phone: string): EmployeeDetails => ({
+      ...this.blankDetails(id),
+      hireDate,
+      phone,
+    });
+    return {
+      1: makeDetails(1, '2021-02-15', '0917 123 4567'),
+      2: makeDetails(2, '2022-06-01', '0918 234 5678'),
+      3: makeDetails(3, '2020-09-21', '0919 345 6789'),
+      4: makeDetails(4, '2023-01-09', '0920 456 7890'),
+      5: makeDetails(5, '2019-11-04', '0921 567 8901'),
+    };
+  }
+
+  remove(id: number) {
     this._employees.update((list) => list.filter((e) => e.id !== id));
     this._attendance.update((list) => list.filter((r) => r.employeeId !== id));
     this._leaves.update((list) => list.filter((l) => l.employeeId !== id));
     this._incidents.update((list) => list.filter((i) => i.employeeId !== id));
+    this._details.update((details) => {
+      const copy = { ...details };
+      delete copy[id];
+      return copy;
+    });
     this._documents().filter((d) => d.employeeId === id).forEach((d) => URL.revokeObjectURL(d.url));
     this._documents.update((list) => list.filter((d) => d.employeeId !== id));
   }

@@ -15,6 +15,27 @@ export interface Employee {
   status: Status;
 }
 
+export type Gender = 'Male' | 'Female' | 'Other' | '';
+export type CivilStatus = 'Single' | 'Married' | 'Widowed' | 'Separated' | '';
+
+export interface EmployeeDetails {
+  employeeId: number;
+  hireDate: string;
+  phone: string;
+  birthDate: string;
+  gender: Gender;
+  civilStatus: CivilStatus;
+  address: string;
+  emergencyName: string;
+  emergencyRelation: string;
+  emergencyPhone: string;
+  sssNo: string;
+  philhealthNo: string;
+  pagibigNo: string;
+  tin: string;
+  photo: string | null;
+}
+
 export interface AttendanceRecord {
   employeeId: number;
   date: string;

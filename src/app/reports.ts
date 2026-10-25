@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { EmployeeService } from './employee-service';
+import { SettingsService } from '../settings-service';
 
 @Component({
   selector: 'app-reports',
@@ -61,6 +62,12 @@ import { EmployeeService } from './employee-service';
 })
 export class Reports {
   private svc = inject(EmployeeService);
+  private settings = inject(SettingsService);
+
+  private lateAfter = computed(() => {
+    const [h, m] = this.settings.settings().lateAfter.split(':').map(Number);
+    return h * 60 + m;
+  });
 
   /** 'YYYY-MM' */
   month = signal(this.svc.today().slice(0, 7));
@@ -106,7 +113,7 @@ export class Reports {
       for (const r of recs) {
         const i = this.toMinutes(r.timeIn);
         const o = this.toMinutes(r.timeOut);
-        if (i !== null && i > 9 * 60) late++;
+        if (i !== null && i > this.lateAfter()) late++;
         if (i !== null && o !== null && o > i) minutes += o - i;
       }
 
