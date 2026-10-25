@@ -621,3 +621,167 @@ th {
   background: var(--color-danger-bg);
   color: var(--color-danger);
 }
+
+/* --- Reports and incidents --- */
+textarea {
+  padding: 9px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font: inherit;
+  resize: vertical;
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.inline-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--color-text-label);
+}
+
+td.flag {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+/* Severity badges */
+.badge.low {
+  background: var(--badge-active-bg);
+  color: var(--badge-active-text);
+}
+
+.badge.medium {
+  background: var(--badge-leave-bg);
+  color: var(--badge-leave-text);
+}
+
+.badge.high {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+/* Incident status badges */
+.badge.open {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.badge.investigating {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge.resolved {
+  background: var(--badge-active-bg);
+  color: var(--badge-active-text);
+}
+
+/* Printing: hide the sidebar and buttons */
+@media print {
+  .sidebar,
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .panel,
+  .card {
+    box-shadow: none;
+    border: 1px solid var(--color-border-light);
+  }
+}
+
+/* --- Payroll --- */
+.period-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-md);
+}
+
+.period-info > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.period-info .muted {
+  font-size: 0.85rem;
+}
+
+.toolbar .tabs {
+  margin: 0;
+}
+
+input.salary {
+  width: 120px;
+}
+
+th.num,
+td.num {
+  text-align: right;
+}
+
+tfoot td {
+  background: var(--color-table-head);
+  font-weight: 600;
+}
+
+/* --- Payslip --- */
+.slip-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.slip-head h2 {
+  margin-top: 0;
+}
+
+.slip-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.slip-row.head {
+  padding-top: var(--space-md);
+  border-bottom: none;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.slip-row.total {
+  font-weight: 600;
+}
+
+.slip-row.net {
+  margin-top: var(--space-sm);
+  border-top: 2px solid var(--color-text);
+  border-bottom: none;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+/* Printing: payslip shows only when "Print payslip" is used */
+@media print {
+  .payslip-panel {
+    display: none;
+  }
+
+  .payslip-only .payslip-panel {
+    display: block;
+  }
+}

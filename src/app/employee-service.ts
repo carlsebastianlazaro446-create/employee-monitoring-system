@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-import { AttendanceRecord, Employee, LeaveRequest, LeaveStatus } from './models';
+import { AttendanceRecord, DocCategory, Employee, EmployeeDocument, IncidentReport, IncidentStatus, LeaveRequest, LeaveStatus,
+} from './models';
 
 @Injectable({ providedIn: 'root' })
 export class EmployeeService {
@@ -18,6 +19,21 @@ export class EmployeeService {
   private nextLeaveId = 5;
   private _leaves = signal<LeaveRequest[]>(this.seedLeaves());
   readonly leaves = this._leaves.asReadonly();
+
+  private nextIncidentId = 4;
+  private _incidents = signal<IncidentReport[]>(this.seedIncidents());
+  readonly incidents = this._incidents.asReadonly();
+
+  // Documents
+  private nextDocId = 1;
+  private _documents = signal<EmployeeDocument[]>([]);
+  readonly documents = this._documents.asReadonly();
+
+  // Payroll: monthly salary per employee id, and which pay periods are marked paid
+  private _salaries = signal<Record<number, number>>({ 1: 45000, 2: 38000, 3: 32000, 4: 35000, 5: 28000 });
+  readonly salaries = this._salaries.asReadonly();
+  private _paidRuns = signal<string[]>([]);
+  readonly paidRuns = this._paidRuns.asReadonly();
 
 
   readonly employees = this._employees.asReadonly();
@@ -45,6 +61,9 @@ export class EmployeeService {
     this._employees.update((list) => list.filter((e) => e.id !== id));
     this._attendance.update((list) => list.filter((r) => r.employeeId !== id));
     this._leaves.update((list) => list.filter((l) => l.employeeId !== id));
+    this._incidents.update((list) => list.filter((i) => i.employeeId !== id));
+    this._documents().filter((d) => d.employeeId === id).forEach((d) => URL.revokeObjectURL(d.url));
+    this._documents.update((list) => list.filter((d) => d.employeeId !== id));
   }
 
     recordOn(employeeId: number, date: string): AttendanceRecord | undefined {
@@ -62,6 +81,58 @@ export class EmployeeService {
       this._leaves.update((list) => list.map((leave) => (leave.id === id ? { ...leave, status } : leave)));
     }
 
+    addIncident(data: Omit<IncidentReport, 'id' | 'status' | 'actionTaken'>) {
+      this._incidents.update((list) => [
+        { ...data, id: this.nextIncidentId++, status: 'Open', actionTaken: '' },
+        ...list,
+      ]);
+    }
+
+    setIncidentStatus(id: number, status: IncidentStatus, actionTaken?: string) {
+      this._incidents.update((list) =>
+        list.map((i) =>
+          i.id === id ? { ...i, status, actionTaken: actionTaken ?? i.actionTaken } : i
+        )
+      );
+    }
+
+    removeIncident(id: number) {
+      this._incidents.update((list) => list.filter((i) => i.id !== id));
+    }
+
+    addDocument(employeeId: number, category: DocCategory, file: File) {
+      this._documents.update((list) => [
+        {
+          id: this.nextDocId++,
+          employeeId,
+          category,
+          fileName: file.name,
+          size: file.size,
+          uploadedOn: this.today(),
+          url: URL.createObjectURL(file),
+        },
+        ...list,
+      ]);
+    }
+
+    removeDocument(id: number) {
+      const doc = this._documents().find((d) => d.id === id);
+      if (doc) URL.revokeObjectURL(doc.url);
+      this._documents.update((list) => list.filter((d) => d.id !== id));
+    }
+
+    setSalary(employeeId: number, amount: number) {
+      this._salaries.update((s) => ({ ...s, [employeeId]: amount }));
+    }
+
+    markRunPaid(key: string) {
+      this._paidRuns.update((list) => (list.includes(key) ? list : [...list, key]));
+    }
+    
+    
+
+
+
     private offsetDate(days: number): string {
       const today = new Date();
       return new Date(today.getFullYear(), today.getMonth(), today.getDate() + days).toLocaleDateString('en-CA');
@@ -74,6 +145,15 @@ export class EmployeeService {
         { id: 2, employeeId: 4, type: 'Sick', startDate: this.offsetDate(1), endDate: this.offsetDate(2), reason: 'Flu and fever', status: 'Pending', requestedOn: this.offsetDate(-1) },
         { id: 3, employeeId: 3, type: 'Vacation', startDate: this.offsetDate(-3), endDate: this.offsetDate(4), reason: 'Out of town', status: 'Approved', requestedOn: this.offsetDate(-14) },
         { id: 4, employeeId: 1, type: 'Other', startDate: this.offsetDate(10), endDate: this.offsetDate(10), reason: 'Personal errand', status: 'Rejected', requestedOn: this.offsetDate(-5) },
+      ];
+    }
+
+    /** Sample incidents. Delete when you add a backend. */
+    private seedIncidents(): IncidentReport[] {
+      return [
+        { id: 1, employeeId: 2, type: 'Equipment', severity: 'Low', date: this.offsetDate(-2), location: 'IT Room', description: 'Laptop charger overheated and was replaced.', reportedBy: 'Mark Lim', status: 'Resolved', actionTaken: 'Charger replaced, old unit disposed.' },
+        { id: 2, employeeId: 4, type: 'Safety', severity: 'High', date: this.offsetDate(-1), location: 'Server Room', description: 'Water leak near the server rack.', reportedBy: 'Maria Santos', status: 'Investigating', actionTaken: '' },
+        { id: 3, employeeId: 5, type: 'Misconduct', severity: 'Medium', date: this.offsetDate(-6), location: 'Sales Floor', description: 'Repeated disregard of dress code after a warning.', reportedBy: 'Maria Santos', status: 'Open', actionTaken: '' },
       ];
     }
 

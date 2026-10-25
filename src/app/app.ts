@@ -46,6 +46,10 @@ export class App {
     { path: '/', label: 'Dashboard', icon: '📊', exact: true },
     { path: '/employees', label: 'Employees', icon: '👥', exact: false },
     { path: '/attendance', label: 'Attendance', icon: '🕒', exact: false },
-        { path: '/leaves', label: 'Leaves', icon: '🌴', exact: false },
+    { path: '/leaves', label: 'Leaves', icon: '🌴', exact: false },
+    { path: '/reports', label: 'Reports', icon: '📄', exact: false },
+    { path: '/incidents', label: 'Incidents', icon: '⚠️', exact: false },
+    { path: '/documents', label: 'Documents', icon: '📁', exact: false },
+    { path: '/payroll', label: 'Payroll', icon: '💰', exact: false },
   ];
 }

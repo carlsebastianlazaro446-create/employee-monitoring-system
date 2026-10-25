@@ -1,7 +1,10 @@
 export type Status = 'Active' | 'On Leave' | 'Inactive';
 export type LeaveStatus = 'Pending' | 'Approved' | 'Rejected';
 export type LeaveType = 'Vacation' | 'Sick' | 'Emergency' | 'Other';
-
+export type IncidentType = 'Safety' | 'Misconduct' | 'Equipment' | 'Harassment' | 'Other';
+export type IncidentSeverity = 'Low' | 'Medium' | 'High';
+export type IncidentStatus = 'Open' | 'Investigating' | 'Resolved';
+export type DocCategory =| 'Contract' | 'Government ID' | 'Resume' | 'Certificate' | 'Medical' | 'Clearance' | 'Other'
 
 export interface Employee {
   id: number;
@@ -28,4 +31,27 @@ export interface LeaveRequest {
   reason: string;
   status: LeaveStatus;
   requestedOn: string;
+}
+
+export interface IncidentReport {
+  id: number;
+  employeeId: number;
+  type: IncidentType;
+  severity: IncidentSeverity;
+  date: string; // YYYY-MM-DD
+  location: string;
+  description: string;
+  reportedBy: string;
+  status: IncidentStatus;
+  actionTaken: string;
+}
+
+export interface EmployeeDocument {
+  id: number;
+  employeeId: number;
+  category: DocCategory;
+  fileName: string;
+  size: number;       // bytes
+  uploadedOn: string; // YYYY-MM-DD
+  url: string;        // temporary browser URL (lost on refresh)
 }

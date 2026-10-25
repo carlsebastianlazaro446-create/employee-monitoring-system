@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { EmployeeService } from './employee-service';
-import { Employee, AttendanceRecord } from './models';
+import { Employee } from './models';
 
 interface DayCell {
   day: number;
@@ -69,18 +69,17 @@ interface DayCell {
         </div>
         <table>
           <thead>
-            <tr><th>Employee</th><th>Time In</th><th>Time Out</th><th>Status</th></tr>
+            <tr><th>Employee</th><th>Time In</th><th>Time Out</th></tr>
           </thead>
           <tbody>
             @for (r of rows(); track r.emp.id) {
               <tr>
-                <td>{{ r.emp.name }}<br /><small class="muted">{{ r.emp.department }}</small></td>
+                <td>{{ r.emp.name }}</td>
                 <td>{{ r.rec?.timeIn ?? '—' }}</td>
                 <td>{{ r.rec?.timeOut ?? '—' }}</td>
-                <td><span class="badge" [class]="'badge ' + statusOf(r.rec).css">{{ statusOf(r.rec).label }}</span></td>
               </tr>
             } @empty {
-              <tr><td colspan="4" class="empty">No employees yet.</td></tr>
+              <tr><td colspan="3" class="empty">No employees yet.</td></tr>
             }
           </tbody>
         </table>
@@ -173,13 +172,6 @@ export class Dashboard {
       rec: this.svc.recordOn(emp.id, this.selected()),
     }))
   );
-
-  statusOf(rec?: AttendanceRecord): { label: string; css: string } {
-    if (rec?.timeOut) return { label: 'Completed', css: 'present' };
-    if (rec) return { label: 'Working', css: 'working' };
-    if (this.selected() > this.svc.today()) return { label: '—', css: 'inactive' };
-    return { label: 'Absent', css: 'absent' };
-  }
 
   // --- Department chart ---
   departments = computed(() => {
